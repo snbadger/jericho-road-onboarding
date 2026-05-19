@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module — The Jericho Road</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">The Jericho <span class="accent">Road</span></div>
+    <nav>
+      <a href="#" id="backLink">Back to dashboard</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div id="loading" class="card">
+      <p class="muted">Loading…</p>
+    </div>
+
+    <div id="moduleView" class="hidden">
+      <div class="card">
+        <p class="small muted" style="margin:0">
+          Mile Marker <span id="moduleNumber">—</span>
+        </p>
+        <h1 id="moduleTitle">Module</h1>
+        <div id="moduleDesc" class="lede"></div>
+
+        <div id="videoWrap" class="hidden" style="margin: 1.5rem 0;">
+          <div style="position:relative; padding-top:56.25%; background:#000; border-radius:var(--radius); overflow:hidden;">
+            <iframe id="videoFrame" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <p class="small muted" style="margin-top:0.5rem">
+            Please watch the video all the way through before completing this module.
+          </p>
+        </div>
+      </div>
+
+      <!-- Quiz block (shown only if has_quiz) -->
+      <div id="quizBlock" class="card hidden">
+        <h2 style="margin-top:0">Short quiz</h2>
+        <p class="muted">Answer each question. We'll show you how you did at the end.</p>
+        <div id="quizQuestions"></div>
+        <div id="quizResult" class="banner hidden"></div>
+      </div>
+
+      <!-- Attestation block (shown if has_attestation, after quiz) -->
+      <div id="attestationBlock" class="card hidden">
+        <h2 style="margin-top:0">Attest and complete</h2>
+        <div class="checkbox-row">
+          <input type="checkbox" id="attestCheck">
+          <label for="attestCheck" style="font-weight:normal; margin-bottom:0">
+            <span id="attestText">
+              I have reviewed the content of this module, I understand it, and I had
+              the opportunity to ask questions. I will ask my supervisor or the Director
+              of Staff Development if I have questions later.
+            </span>
+          </label>
+        </div>
+
+        <button class="btn" id="completeBtn" disabled>Mark complete</button>
+        <span id="saveStatus" class="small muted" style="margin-left:0.75rem"></span>
+      </div>
+
+      <div id="doneBanner" class="banner success hidden">
+        This module is complete. Returning to your dashboard…
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    Morning Star Post Acute &middot; Jericho Care Group
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/module.js"></script>
+</body>
+</html>

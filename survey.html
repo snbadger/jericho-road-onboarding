@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Me — The Jericho Road</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">The Jericho <span class="accent">Road</span></div>
+    <nav><a href="#" id="backLink">Back to dashboard</a></nav>
+  </header>
+
+  <main class="page">
+    <div id="loading" class="card"><p class="muted">Loading…</p></div>
+
+    <div id="surveyView" class="hidden">
+      <div class="card hero">
+        <h1 class="hero-title">About Me — Caregiver Survey</h1>
+        <p class="hero-subtitle">
+          Help us make your Day 1 feel like we've been expecting you — because we have.
+          Everything below is optional. Skip anything you'd rather not answer.
+        </p>
+      </div>
+
+      <form id="surveyForm" autocomplete="off">
+
+        <div class="card">
+          <h2 style="margin-top:0">The basics</h2>
+          <label for="preferred_name">What do you prefer to be called?</label>
+          <input type="text" id="preferred_name" name="preferred_name">
+
+          <label for="about_yourself">Tell us anything about yourself you'd like us to know</label>
+          <textarea id="about_yourself" name="about_yourself" rows="4"></textarea>
+
+          <label for="family_pets">Who's waiting for you at home — family, pets, roommates?</label>
+          <textarea id="family_pets" name="family_pets" rows="3"></textarea>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-top:0">Your favorites</h2>
+          <p class="muted small">We may use some of these to personalize your welcome on Day 1.</p>
+
+          <div class="field-row">
+            <div>
+              <label for="hot_drink">Favorite hot drink</label>
+              <input type="text" id="hot_drink" name="hot_drink" placeholder="e.g. coffee with cream">
+            </div>
+            <div>
+              <label for="cold_drink">Favorite cold drink</label>
+              <input type="text" id="cold_drink" name="cold_drink">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div>
+              <label for="snack">Favorite snack</label>
+              <input type="text" id="snack" name="snack">
+            </div>
+            <div>
+              <label for="candy">Favorite candy</label>
+              <input type="text" id="candy" name="candy">
+            </div>
+          </div>
+
+          <label for="allergies">Food allergies or dietary preferences we should know about?</label>
+          <input type="text" id="allergies" name="allergies">
+
+          <div class="field-row">
+            <div>
+              <label for="music">Favorite kind of music</label>
+              <input type="text" id="music" name="music">
+            </div>
+            <div>
+              <label for="show">Favorite movie or TV show</label>
+              <input type="text" id="show" name="show">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div>
+              <label for="sports_team">Favorite sports team (optional)</label>
+              <input type="text" id="sports_team" name="sports_team">
+            </div>
+            <div>
+              <label for="relax">Favorite way to relax on a day off</label>
+              <input type="text" id="relax" name="relax">
+            </div>
+          </div>
+
+          <label for="hobbies">Hobbies or things you love outside of work</label>
+          <textarea id="hobbies" name="hobbies" rows="3"></textarea>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-top:0">What motivates you</h2>
+
+          <label for="why_career">Why did you choose this career?</label>
+          <textarea id="why_career" name="why_career" rows="3"></textarea>
+
+          <label for="why_morning_star">What drew you specifically to Morning Star?</label>
+          <textarea id="why_morning_star" name="why_morning_star" rows="3"></textarea>
+
+          <label for="good_at">One thing you're really good at (in life, not just at work)</label>
+          <input type="text" id="good_at" name="good_at">
+
+          <label for="hoping_to_learn">One thing you're hoping to learn or get better at</label>
+          <input type="text" id="hoping_to_learn" name="hoping_to_learn">
+        </div>
+
+        <div class="card">
+          <h2 style="margin-top:0">How you like to be recognized</h2>
+          <p class="muted small">When you do something great, how do you prefer to be recognized?</p>
+
+          <label class="checkbox-row"><input type="checkbox" name="recognition[]" value="private_thanks"> A personal thank-you from my supervisor (private)</label>
+          <label class="checkbox-row"><input type="checkbox" name="recognition[]" value="team_shoutout"> A shout-out in front of my team</label>
+          <label class="checkbox-row"><input type="checkbox" name="recognition[]" value="written_note"> A written note or card</label>
+          <label class="checkbox-row"><input type="checkbox" name="recognition[]" value="small_gift"> A small gift</label>
+          <label class="checkbox-row"><input type="checkbox" name="recognition[]" value="staff_meeting"> Recognition at a staff meeting</label>
+          <label class="checkbox-row"><input type="checkbox" name="recognition[]" value="quiet"> I'd rather not be singled out — a quiet acknowledgment is enough</label>
+
+          <label for="recognition_other">Other (optional)</label>
+          <input type="text" id="recognition_other" name="recognition_other">
+        </div>
+
+        <div class="card">
+          <h2 style="margin-top:0">Pet peeves and fun facts</h2>
+
+          <label for="pet_peeves">Pet peeves at work (helps us be better teammates)</label>
+          <textarea id="pet_peeves" name="pet_peeves" rows="2"></textarea>
+
+          <label for="nickname">A nickname you've had (and who gave it to you)</label>
+          <input type="text" id="nickname" name="nickname">
+
+          <label for="bucket_list">One thing on your bucket list</label>
+          <input type="text" id="bucket_list" name="bucket_list">
+
+          <label for="travel">Where have you traveled? Where do you dream of going?</label>
+          <textarea id="travel" name="travel" rows="2"></textarea>
+
+          <label for="dinner_guest">If you could have dinner with anyone (living or not), who and why?</label>
+          <textarea id="dinner_guest" name="dinner_guest" rows="2"></textarea>
+
+          <label for="quote">A favorite quote or saying that keeps you going (optional)</label>
+          <textarea id="quote" name="quote" rows="2"></textarea>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-top:0">Anything else?</h2>
+          <label for="anything_else">Use this space to tell us anything else you'd like us to know.</label>
+          <textarea id="anything_else" name="anything_else" rows="4"></textarea>
+
+          <div id="saveBanner" class="banner hidden"></div>
+
+          <button type="button" class="btn secondary" id="saveDraftBtn">Save draft</button>
+          <button type="button" class="btn" id="submitBtn">Submit and finish</button>
+        </div>
+
+      </form>
+
+      <div id="completedBanner" class="banner success hidden">
+        You've already submitted this survey. You can update it here if you'd like —
+        your previous answers are loaded above.
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Morning Star Post Acute &middot; Jericho Care Group
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/survey.js"></script>
+</body>
+</html>

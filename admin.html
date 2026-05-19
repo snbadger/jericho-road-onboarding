@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — The Jericho Road</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">The Jericho <span class="accent">Road</span> <span class="small" style="opacity:0.7; margin-left:0.75rem">Admin</span></div>
+    <nav>
+      <a href="index.html">New-hire view</a>
+      <a href="#" id="signOutAdmin" class="hidden">Sign out</a>
+    </nav>
+  </header>
+
+  <main class="page">
+
+    <!-- Login -->
+    <div id="login" class="card hidden">
+      <h1 style="margin-top:0">Admin sign-in</h1>
+      <p class="muted">Enter the admin token. Only Yessi and Stephen should have this.</p>
+      <label for="adminInput">Admin token</label>
+      <input type="password" id="adminInput" autocomplete="off">
+      <button class="btn" id="adminSignIn">Sign in</button>
+      <div id="loginError" class="banner error hidden">Incorrect token. Try again.</div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="card hidden"><p class="muted">Loading…</p></div>
+
+    <!-- Dashboard -->
+    <div id="adminView" class="hidden">
+
+      <div class="card">
+        <h1 style="margin-top:0">Cohort dashboard</h1>
+        <p class="muted">Create new hires, send them the link, and track their pre-boarding completion.</p>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0">Add a new hire</h2>
+        <form id="createForm" autocomplete="off">
+          <div class="field-row">
+            <div>
+              <label for="new_full_name">Full name*</label>
+              <input type="text" id="new_full_name" required>
+            </div>
+            <div>
+              <label for="new_preferred_name">Preferred name</label>
+              <input type="text" id="new_preferred_name">
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label for="new_email">Email</label>
+              <input type="email" id="new_email">
+            </div>
+            <div>
+              <label for="new_job_title">Job title</label>
+              <input type="text" id="new_job_title" placeholder="CNA, LVN, Dietary Aide, etc.">
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label for="new_department">Department</label>
+              <select id="new_department">
+                <option value="">—</option>
+                <option>Nursing</option>
+                <option>Dietary / F&amp;N</option>
+                <option>Housekeeping / Laundry</option>
+                <option>Maintenance</option>
+                <option>Activities</option>
+                <option>Social Services</option>
+                <option>Therapy</option>
+                <option>Business Office</option>
+                <option>Medical Records</option>
+                <option>Administration</option>
+              </select>
+            </div>
+            <div>
+              <label for="new_start_date">Start date*</label>
+              <input type="date" id="new_start_date" required>
+            </div>
+            <div>
+              <label for="new_neo_date">NEO date*</label>
+              <input type="date" id="new_neo_date" required>
+            </div>
+          </div>
+
+          <button class="btn" type="submit">Create and generate link</button>
+          <div id="createResult" class="banner success hidden"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0">All new hires</h2>
+        <p class="small muted">Click a row to copy their personal link to your clipboard.</p>
+        <div id="hireListWrap"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    Morning Star Post Acute &middot; Jericho Care Group
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
