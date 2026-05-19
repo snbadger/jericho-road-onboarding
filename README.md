@@ -165,8 +165,7 @@ pointing to `snbadger.github.io`.
 
 ## Known TODOs
 
-- [ ] Rotate the admin token before production use (currently `jericho-road-admin-2026`)
-- [ ] Add the final video URLs for AB-40, Dementia, BBP, Infection Control (awaiting Yessi's picks)
+- [ ] **Rotate the admin token** — the site is now public; rotate the value in the `onboarding_is_admin()` Postgres function and do not record the value in this repo
 - [ ] Add a per-hire detail page for admin (shows which specific modules they've completed; RPC exists)
 - [ ] Email delivery integration — currently Yessi copies the link and pastes into Outlook manually
 - [ ] Server-side printable PDF of completed attestations for personnel files
