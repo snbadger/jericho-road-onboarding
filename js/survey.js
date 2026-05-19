@@ -34,7 +34,7 @@ async function loadSurvey() {
       document.getElementById('preferred_name').value = hire.preferred_name;
     }
 
-    ['about_yourself','family_pets','hot_drink','cold_drink','snack','candy','allergies',
+    ['shirt_size','about_yourself','family_pets','hot_drink','cold_drink','snack','candy','allergies',
      'music','show','sports_team','relax','hobbies','why_career','why_morning_star',
      'good_at','hoping_to_learn','recognition_other','pet_peeves','nickname','bucket_list',
      'travel','dinner_guest','quote','anything_else'].forEach(key => {
@@ -72,7 +72,7 @@ function collectResponses() {
   const form = document.getElementById('surveyForm');
   const data = {};
 
-  form.querySelectorAll('input[type="text"], textarea').forEach(el => {
+  form.querySelectorAll('input[type="text"], textarea, select').forEach(el => {
     if (el.name && el.name !== 'recognition[]') data[el.name] = el.value.trim();
   });
 
