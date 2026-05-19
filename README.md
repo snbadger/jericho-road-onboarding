@@ -126,30 +126,31 @@ Edit `css/styles.css` — the `:root` variables at the top (`--navy`, `--gold`, 
 
 ---
 
-## Deployment to Cloudflare Pages
+## Deployment — GitHub Pages
 
-Recommended host — free tier, custom domain support, edge-deployed, zero config.
+This site is published from its own repository:
 
-### One-time setup
+- **Repo:** https://github.com/snbadger/jericho-road-onboarding
+- **Live URL:** https://snbadger.github.io/jericho-road-onboarding/
+- **Pages source:** `main` branch, root (`/`)
 
-1. Push the `website/` folder to a GitHub repo (can be a subdirectory of an existing repo).
-2. Log in to Cloudflare → Workers & Pages → Create → Pages → Connect to Git.
-3. Select the repo. Build settings:
-   - **Framework preset:** None
-   - **Build command:** (leave blank)
-   - **Build output directory:** `01_Work/Jericho/Standard_Work/Orientation Documents/Jericho_Road_NEO/website` (or whatever the path is in your repo)
-4. Deploy. Cloudflare gives you a `*.pages.dev` URL immediately.
-
-### Custom domain (recommended)
-
-In Cloudflare Pages → Custom domains → Add. Suggested subdomain:
-`welcome.morningstarpostacute.com` or `jericho-road.morningstarpostacute.com`.
-
-Add the DNS CNAME in your domain registrar pointing at the `*.pages.dev` URL.
+The site files live at the repo root (`index.html`, `module.html`, `survey.html`,
+`admin.html`, `css/`, `js/`) — no build step.
 
 ### Updating
 
-Push to the main branch → Cloudflare rebuilds and deploys automatically.
+Push to the `main` branch of `jericho-road-onboarding` and GitHub Pages
+redeploys automatically (usually within a minute).
+
+This folder inside the `coworklocal` monorepo is the working source of record.
+When you change it here, copy the changes into the `jericho-road-onboarding`
+repo and push, or edit that repo directly.
+
+### Custom domain (optional)
+
+In the repo → Settings → Pages → Custom domain, add e.g.
+`welcome.morningstarpostacute.com`, then add a DNS CNAME at your registrar
+pointing to `snbadger.github.io`.
 
 ---
 
