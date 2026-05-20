@@ -71,7 +71,7 @@ async function onCreateHire(ev) {
     });
 
     const token = result.access_token;
-    const link = `${window.location.origin}/?t=${token}`;
+    const link = `${new URL('.', window.location.href).href}?t=${token}`;
 
     banner.className = 'banner success';
     banner.innerHTML =
@@ -129,7 +129,7 @@ async function refreshHireList() {
 
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      const link = `${window.location.origin}/?t=${r.access_token}`;
+      const link = `${new URL('.', window.location.href).href}?t=${r.access_token}`;
       const modulesLabel = `${r.modules_completed}/${r.modules_total}`;
       const modulesPct = r.modules_total ? Math.round((r.modules_completed / r.modules_total) * 100) : 0;
 
