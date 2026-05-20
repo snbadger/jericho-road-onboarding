@@ -142,6 +142,7 @@ async function refreshHireList() {
         <td>${r.survey_completed ? '<span style="color:var(--success)">✓</span>' : '<span class="muted">—</span>'}</td>
         <td>
           <button class="btn secondary small copyBtn" data-link="${escapeHtml(link)}">Copy link</button>
+          <button class="btn secondary small pdfBtn" data-id="${r.id}" title="Download attestation PDF" style="margin-top:0.25rem">PDF</button>
           <button class="btn danger small delBtn" data-id="${r.id}" data-name="${escapeHtml(r.full_name)}" style="margin-top:0.25rem">Delete</button>
         </td>
       `;
@@ -158,6 +159,16 @@ async function refreshHireList() {
           e.target.textContent = 'Copied';
           setTimeout(() => { e.target.textContent = 'Copy link'; }, 1500);
         });
+      });
+    });
+
+    wrap.querySelectorAll('.pdfBtn').forEach(b => {
+      b.addEventListener('click', async (e) => {
+        const btn = e.target;
+        const orig = btn.textContent;
+        btn.disabled = true; btn.textContent = '…';
+        try { await downloadAttestationPDF(btn.dataset.id); }
+        finally { btn.disabled = false; btn.textContent = orig; }
       });
     });
 
@@ -178,6 +189,120 @@ async function refreshHireList() {
     console.error(err);
     wrap.innerHTML = '<p class="banner error">Failed to load. Try refreshing.</p>';
   }
+}
+
+async function downloadAttestationPDF(hireId) {
+  const detail = await SB.rpc('onboarding_admin_get_new_hire_detail', {
+    p_admin_token: getAdminToken(),
+    p_new_hire_id: hireId
+  });
+  if (!detail || !detail.new_hire) {
+    alert('Could not load this hire\'s record.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const M = 54;            // 0.75" margin
+  const PAGE_W = 612;
+  let y = M;
+
+  // Title
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
+  doc.text('Pre-Boarding Training Attestation Record', M, y); y += 18;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  doc.text('Morning Star Post Acute  ·  Jericho Care Group', M, y); y += 22;
+
+  // Employee info
+  const h = detail.new_hire;
+  const info = [
+    ['Employee', h.full_name + (h.preferred_name ? ` (${h.preferred_name})` : '')],
+    ['Position', h.job_title || '—'],
+    ['Department', h.department || '—'],
+    ['Start date', h.start_date || '—'],
+    ['NEO date', h.neo_date || '—']
+  ];
+  info.forEach(([k, v]) => {
+    doc.setFont('helvetica', 'bold'); doc.text(k + ':', M, y);
+    doc.setFont('helvetica', 'normal'); doc.text(String(v), M + 90, y);
+    y += 14;
+  });
+  y += 8;
+
+  // Modules table
+  const modules = detail.modules || [];
+  const completedCount = modules.filter(({ progress: p }) => p && p.status === 'completed').length;
+  const totalRequired = modules.filter(({ module: m }) => m.required).length;
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text(`Modules — ${completedCount} of ${totalRequired} required complete`, M, y); y += 6;
+
+  const rows = modules.map(({ module: m, progress: p }) => {
+    const status = p ? p.status : 'not_started';
+    const completedAt = p && p.completed_at
+      ? new Date(p.completed_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+      : '—';
+    const quiz = p && p.quiz_score != null ? `${p.quiz_score}/${p.quiz_total}` : '';
+    return [m.title, status.replace('_', ' '), completedAt, quiz];
+  });
+
+  doc.autoTable({
+    startY: y + 4,
+    head: [['Module', 'Status', 'Completed', 'Quiz']],
+    body: rows,
+    styles: { fontSize: 9, cellPadding: 5, valign: 'middle' },
+    headStyles: { fillColor: [27, 42, 74], textColor: 255 },
+    columnStyles: { 0: { cellWidth: 240 }, 1: { cellWidth: 70 }, 2: { cellWidth: 130 }, 3: { cellWidth: 50 } },
+    margin: { left: M, right: M }
+  });
+  y = doc.lastAutoTable.finalY + 18;
+
+  // Survey
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+  doc.text('About-Me Survey:', M, y);
+  doc.setFont('helvetica', 'normal');
+  const surveyTxt = detail.survey && detail.survey.completed_at
+    ? `Submitted ${new Date(detail.survey.completed_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}`
+    : 'Not submitted';
+  doc.text(surveyTxt, M + 110, y);
+  y += 24;
+
+  // Acknowledgment + signatures (start a new page if not enough room)
+  if (y > 640) { doc.addPage(); y = M; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Acknowledgment', M, y); y += 14;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  doc.text(
+    'The employee named above has completed the pre-boarding training items shown as complete. This record is filed in the personnel file as documentation of regulatory training.',
+    M, y, { maxWidth: PAGE_W - 2 * M }
+  );
+  y += 36;
+
+  const sigW = 240;
+  const gap = 30;
+  doc.line(M, y, M + sigW, y);
+  doc.line(M + sigW + gap, y, M + sigW + gap + 130, y);
+  y += 11;
+  doc.text('Employee signature', M, y);
+  doc.text('Date', M + sigW + gap, y);
+  y += 30;
+
+  doc.line(M, y, M + sigW, y);
+  doc.line(M + sigW + gap, y, M + sigW + gap + 130, y);
+  y += 11;
+  doc.text('Director of Staff Development', M, y);
+  doc.text('Date', M + sigW + gap, y);
+
+  // Footer
+  doc.setFontSize(8); doc.setTextColor(120);
+  doc.text(
+    `Generated ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}  ·  jericho-road-onboarding`,
+    M, 760
+  );
+
+  const safeName = h.full_name.replace(/[^A-Za-z0-9]+/g, '_');
+  const datestr = new Date().toISOString().slice(0, 10);
+  doc.save(`Onboarding_Attestations_${safeName}_${datestr}.pdf`);
 }
 
 function fmtDate(d) {
