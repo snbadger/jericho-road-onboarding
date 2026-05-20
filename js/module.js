@@ -84,16 +84,15 @@ function render() {
     document.getElementById('quizBlock').classList.remove('hidden');
   }
 
-  // Attestation (unless quiz-only modules — but all modules here have attestation or quiz)
-  if (m.has_attestation) {
+  // Show the attestation + Mark Complete block for any module that needs a completion
+  // record — i.e. has an attestation OR has a quiz. Without this, quiz-only modules
+  // (like AB-40 Mandated Reporter) have no way for the new hire to mark complete.
+  if (m.has_attestation || m.has_quiz) {
     document.getElementById('attestationBlock').classList.remove('hidden');
     const cb = document.getElementById('attestCheck');
     const btn = document.getElementById('completeBtn');
     cb.addEventListener('change', () => { btn.disabled = !cb.checked; });
     btn.addEventListener('click', completeModule);
-  } else if (m.has_quiz) {
-    // Quiz-only module: completion happens after successful quiz
-    document.getElementById('attestationBlock').classList.add('hidden');
   }
 
   // If already completed, show a nudge
