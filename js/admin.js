@@ -139,7 +139,9 @@ async function refreshHireList() {
         <td>${fmtDate(r.start_date)}</td>
         <td>${fmtDate(r.neo_date)}</td>
         <td><span style="font-weight:600;color:${modulesPct === 100 ? 'var(--success)' : 'var(--navy)'}">${modulesLabel}</span> <span class="small muted">(${modulesPct}%)</span></td>
-        <td>${r.survey_completed ? '<span style="color:var(--success)">✓</span>' : '<span class="muted">—</span>'}</td>
+        <td>${r.survey_completed
+          ? `<span style="color:var(--success)">✓</span><br><button class="btn secondary small surveyBtn" data-id="${r.id}" data-name="${escapeHtml(r.full_name)}" title="Download Get to Know You survey results" style="margin-top:0.25rem">Download</button>`
+          : '<span class="muted">—</span>'}</td>
         <td>
           <button class="btn secondary small copyBtn" data-link="${escapeHtml(link)}">Copy link</button>
           <button class="btn secondary small pdfBtn" data-id="${r.id}" title="Download attestation PDF" style="margin-top:0.25rem">PDF</button>
@@ -168,6 +170,16 @@ async function refreshHireList() {
         const orig = btn.textContent;
         btn.disabled = true; btn.textContent = '…';
         try { await downloadAttestationPDF(btn.dataset.id); }
+        finally { btn.disabled = false; btn.textContent = orig; }
+      });
+    });
+
+    wrap.querySelectorAll('.surveyBtn').forEach(b => {
+      b.addEventListener('click', async (e) => {
+        const btn = e.target;
+        const orig = btn.textContent;
+        btn.disabled = true; btn.textContent = '…';
+        try { await downloadSurveyPDF(btn.dataset.id); }
         finally { btn.disabled = false; btn.textContent = orig; }
       });
     });
@@ -303,6 +315,165 @@ async function downloadAttestationPDF(hireId) {
   const safeName = h.full_name.replace(/[^A-Za-z0-9]+/g, '_');
   const datestr = new Date().toISOString().slice(0, 10);
   doc.save(`Onboarding_Attestations_${safeName}_${datestr}.pdf`);
+}
+
+// Get to Know You survey — section/question layout for the printable results sheet.
+// Keys match the survey field names; sections render in this order.
+const SURVEY_LAYOUT = [
+  ['The basics', [
+    ['preferred_name', 'Prefers to be called'],
+    ['shirt_size', 'Shirt size'],
+    ['about_yourself', 'About themselves'],
+    ['family_pets', "Who's at home (family, pets, roommates)"]
+  ]],
+  ['Favorites', [
+    ['hot_drink', 'Favorite hot drink'],
+    ['cold_drink', 'Favorite cold drink'],
+    ['snack', 'Favorite snack'],
+    ['candy', 'Favorite candy'],
+    ['allergies', 'Food allergies / dietary preferences'],
+    ['music', 'Favorite music'],
+    ['show', 'Favorite movie or TV show'],
+    ['sports_team', 'Favorite sports team'],
+    ['relax', 'Favorite way to relax on a day off'],
+    ['hobbies', 'Hobbies / things they love outside work']
+  ]],
+  ['What motivates them', [
+    ['why_career', 'Why they chose this career'],
+    ['why_morning_star', 'What drew them to Morning Star'],
+    ['good_at', "One thing they're really good at"],
+    ['hoping_to_learn', 'One thing they hope to learn or improve']
+  ]],
+  ['How they like to be recognized', [
+    ['recognition', 'Recognition preferences'],
+    ['recognition_other', 'Other recognition note']
+  ]],
+  ['Pet peeves and fun facts', [
+    ['pet_peeves', 'Pet peeves at work'],
+    ['nickname', 'Nickname (and who gave it)'],
+    ['bucket_list', 'Bucket list item'],
+    ['travel', 'Travel — been / dreams of going'],
+    ['dinner_guest', 'Dinner with anyone, living or not'],
+    ['quote', 'Favorite quote or saying']
+  ]],
+  ['Anything else', [
+    ['anything_else', 'Anything else they shared']
+  ]]
+];
+
+const RECOGNITION_LABELS = {
+  private_thanks: 'Personal thank-you from supervisor (private)',
+  team_shoutout: 'Shout-out in front of the team',
+  written_note: 'A written note or card',
+  small_gift: 'A small gift',
+  staff_meeting: 'Recognition at a staff meeting',
+  quiet: "Quiet acknowledgment — rather not be singled out"
+};
+
+function formatSurveyValue(key, val) {
+  if (key === 'recognition' && Array.isArray(val)) {
+    if (!val.length) return '';
+    return val.map(v => RECOGNITION_LABELS[v] || v).join('; ');
+  }
+  return val == null ? '' : String(val).trim();
+}
+
+async function downloadSurveyPDF(hireId) {
+  const detail = await SB.rpc('onboarding_admin_get_new_hire_detail', {
+    p_admin_token: getAdminToken(),
+    p_new_hire_id: hireId
+  });
+  if (!detail || !detail.new_hire) {
+    alert('Could not load this hire\'s record.');
+    return;
+  }
+  const responses = (detail.survey && detail.survey.responses) || {};
+  if (!detail.survey || Object.keys(responses).length === 0) {
+    alert('No survey responses on file for this person yet.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const M = 54;            // 0.75" margin
+  const PAGE_W = 612;
+  const BOTTOM = 740;      // start a new page past this
+  const CONTENT_W = PAGE_W - 2 * M;
+  let y = M;
+
+  const newPageIfNeeded = (needed) => {
+    if (y + needed > BOTTOM) { doc.addPage(); y = M; }
+  };
+
+  const h = detail.new_hire;
+  const displayName = h.full_name + (h.preferred_name ? ` (${h.preferred_name})` : '');
+
+  // Title
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
+  doc.text('Get to Know You — Survey Results', M, y); y += 18;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  doc.text('Morning Star Post Acute  ·  Jericho Care Group', M, y); y += 16;
+
+  // Who / when
+  doc.setFont('helvetica', 'bold'); doc.text(displayName, M, y);
+  doc.setFont('helvetica', 'normal');
+  const meta = [h.job_title, h.department].filter(Boolean).join(' · ');
+  if (meta) { doc.text(meta, M + 240, y); }
+  y += 14;
+  if (detail.survey.completed_at) {
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(
+      `Submitted ${new Date(detail.survey.completed_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}`,
+      M, y
+    );
+    doc.setTextColor(0); doc.setFontSize(10);
+    y += 8;
+  }
+  y += 10;
+
+  SURVEY_LAYOUT.forEach(([section, fields]) => {
+    // Only render the section if at least one field has an answer
+    const answered = fields
+      .map(([key, label]) => [label, formatSurveyValue(key, responses[key])])
+      .filter(([, val]) => val !== '');
+    if (!answered.length) return;
+
+    newPageIfNeeded(40);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+    doc.setTextColor(27, 42, 74);
+    doc.text(section, M, y); y += 4;
+    doc.setDrawColor(210); doc.line(M, y, M + CONTENT_W, y); y += 14;
+    doc.setTextColor(0);
+
+    answered.forEach(([label, val]) => {
+      const valLines = doc.splitTextToSize(val, CONTENT_W);
+      const blockH = 13 + valLines.length * 12 + 6;
+      newPageIfNeeded(blockH);
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5);
+      doc.text(label, M, y); y += 12;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      doc.text(valLines, M, y);
+      y += valLines.length * 12 + 8;
+    });
+    y += 6;
+  });
+
+  // Footer on every page
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8); doc.setTextColor(120);
+    doc.text(
+      `Generated ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}  ·  Confidential — for welcome planning only  ·  jericho-road-onboarding`,
+      M, 768
+    );
+    doc.setTextColor(0);
+  }
+
+  const safeName = h.full_name.replace(/[^A-Za-z0-9]+/g, '_');
+  const datestr = new Date().toISOString().slice(0, 10);
+  doc.save(`Get_to_Know_You_${safeName}_${datestr}.pdf`);
 }
 
 function fmtDate(d) {
